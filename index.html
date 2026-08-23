@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>今日のナンプレ 第1弾 | ふぉーちゅん</title>
+<title>今日のナンプレ 第1弾｜ふぉーちゅん</title>
 
 <style>
 * {
@@ -13,8 +13,14 @@
 body {
   margin: 0;
   padding: 20px 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-               "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
   background: #f7f7f7;
   color: #333;
 }
@@ -39,96 +45,51 @@ h1 {
 
 .subtitle {
   text-align: center;
-  font-size: 14px;
   color: #777;
+  font-size: 14px;
   margin-bottom: 18px;
-}
-
-.level-area {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
-}
-
-.level-btn {
-  border: 1px solid #bbb;
-  background: #fff;
-  color: #333;
-  border-radius: 6px;
-  padding: 8px 13px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.level-btn:hover {
-  background: #f1f1f1;
-}
-
-.level-btn.active {
-  background: #333;
-  color: #fff;
-  border-color: #333;
 }
 
 .info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f4f6f7;
-  border-radius: 7px;
-  padding: 9px 12px;
-  margin-bottom: 12px;
-  font-size: 13px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.timer {
+  font-weight: bold;
 }
 
 .message {
-  min-height: 34px;
+  min-height: 24px;
   text-align: center;
-  font-size: 14px;
   font-weight: bold;
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  margin: 12px 0;
 }
 
-.message.error {
-  background: #fff0f0;
-  color: #d33;
-}
-
-.message.success {
-  background: #effaf0;
-  color: #268a35;
-}
-
-.message:empty {
-  background: transparent;
-}
-
-.sudoku {
+.board {
   width: min(100%, 450px);
   aspect-ratio: 1 / 1;
-  margin: 0 auto 16px;
+  margin: 0 auto 18px;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   border: 3px solid #333;
   background: #333;
-  gap: 0;
 }
 
 .cell {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: #fff;
   border-right: 1px solid #aaa;
   border-bottom: 1px solid #aaa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: clamp(18px, 5vw, 29px);
+  font-size: clamp(20px, 6vw, 32px);
   font-weight: 500;
+  cursor: pointer;
   user-select: none;
 }
 
@@ -150,131 +111,97 @@ h1 {
 }
 
 .cell.fixed {
-  background: #f0f0f0;
-  font-weight: 700;
-  color: #222;
+  background: #f1f1f1;
+  font-weight: bold;
   cursor: default;
 }
 
 .cell.selected {
-  background: #eaf4ff;
-}
-
-.cell.related {
-  background: #f7fbff;
+  background: #eaf3ff;
 }
 
 .cell.same-number {
-  background: #e4f0ff;
+  background: #f4f8ff;
 }
 
-.cell.wrong {
-  animation: shake 0.25s;
+.cell.error {
+  background: #ffe6e6;
+  color: #c62828;
 }
 
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+.cell.correct {
+  color: #1565c0;
 }
 
 .number-pad {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 5px;
-  margin: 0 auto 12px;
-  width: min(100%, 450px);
-}
-
-.number-btn {
-  border: 1px solid #aaa;
-  background: #fff;
-  border-radius: 5px;
-  padding: 10px 3px;
-  font-size: 17px;
-  cursor: pointer;
-}
-
-.number-btn:hover {
-  background: #f1f1f1;
-}
-
-.number-btn:active {
-  transform: scale(0.96);
-}
-
-.control-area {
-  display: flex;
-  justify-content: center;
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
-  margin-top: 8px;
+  max-width: 450px;
+  margin: 0 auto 14px;
 }
 
+.number-btn,
 .control-btn {
-  border: 1px solid #888;
-  background: #fff;
-  border-radius: 6px;
-  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 6px;
+  font-size: 18px;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 13px;
+  background: #eee;
+  color: #333;
 }
 
-.control-btn.main {
+.number-btn:hover,
+.control-btn:hover {
+  background: #ddd;
+}
+
+.number-btn:active,
+.control-btn:active {
+  transform: translateY(1px);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.reset {
   background: #333;
   color: #fff;
-  border-color: #333;
 }
 
-.note {
-  text-align: center;
-  color: #888;
-  font-size: 12px;
-  margin-top: 15px;
+.reset:hover {
+  background: #555;
+}
+
+.rules {
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  font-size: 13px;
   line-height: 1.7;
-}
-
-.clear-box {
-  display: none;
-  margin-top: 15px;
-  padding: 15px;
-  background: #f0faf1;
-  border: 1px solid #b8dfbc;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.clear-box.show {
-  display: block;
-}
-
-.clear-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #258334;
-  margin-bottom: 5px;
+  color: #666;
 }
 
 @media (max-width: 480px) {
-  body {
-    padding: 10px 5px;
-  }
-
   .game-wrap {
-    padding: 15px 10px;
+    padding: 15px;
   }
 
   h1 {
     font-size: 21px;
   }
 
-  .level-btn {
-    padding: 7px 9px;
-    font-size: 12px;
-  }
-
-  .number-btn {
-    padding: 9px 2px;
-    font-size: 15px;
+  .number-btn,
+  .control-btn {
+    padding: 10px 4px;
+    font-size: 16px;
   }
 }
 </style>
@@ -284,29 +211,22 @@ h1 {
 
 <div class="game-wrap">
 
-  <h1>🧩 今日のナンプレ 第1弾</h1>
+  <h1>今日のナンプレ 第1弾</h1>
 
   <div class="subtitle">
-    ちょっとした待ち時間・手すき時間にどうぞ
-  </div>
-
-  <div class="level-area">
-    <button class="level-btn active" data-level="beginner">🌱 初心者</button>
-    <button class="level-btn" data-level="easy">🔰 初級</button>
-    <button class="level-btn" data-level="medium">🧠 中級</button>
-    <button class="level-btn" data-level="hard">🔥 上級</button>
+    ふぉーちゅんの5〜10分ミニゲーム
   </div>
 
   <div class="info">
-    <span id="levelName">初心者</span>
-    <span>⏱ <span id="timer">00:00</span></span>
+    <div>難易度：かんたん</div>
+    <div class="timer">時間：<span id="timer">00:00</span></div>
   </div>
 
   <div id="message" class="message"></div>
 
-  <div id="sudoku" class="sudoku"></div>
+  <div id="board" class="board"></div>
 
-  <div id="numberPad" class="number-pad">
+  <div class="number-pad">
     <button class="number-btn" data-number="1">1</button>
     <button class="number-btn" data-number="2">2</button>
     <button class="number-btn" data-number="3">3</button>
@@ -316,35 +236,37 @@ h1 {
     <button class="number-btn" data-number="7">7</button>
     <button class="number-btn" data-number="8">8</button>
     <button class="number-btn" data-number="9">9</button>
+    <button class="number-btn" data-number="0">消す</button>
   </div>
 
-  <div class="control-area">
-    <button id="eraseBtn" class="control-btn">消す</button>
-    <button id="resetBtn" class="control-btn">リセット</button>
+  <div class="controls">
+    <button class="control-btn" id="checkBtn">答え合わせ</button>
+    <button class="control-btn reset" id="resetBtn">最初から</button>
   </div>
 
-  <div id="clearBox" class="clear-box">
-    <div class="clear-title">🎉 クリア！</div>
-    <div>おめでとうございます！</div>
-    <div id="clearTime"></div>
-  </div>
-
-  <div class="note">
-    マスを選んで数字を入力してください。<br>
-    間違った数字を入れると、メッセージが少しだけ表示されます。<br>
-    リセットしても、同じ問題に戻ります。
+  <div class="rules">
+    <strong>遊び方</strong><br>
+    ① 空いているマスをクリック<br>
+    ② 下の数字から入れたい数字を選択<br>
+    ③ 縦・横・3×3のマスに同じ数字が入らないように完成させよう！<br>
+    ④ 「答え合わせ」でチェックできます。
   </div>
 
 </div>
 
 <script>
-/* =========================================
-   今日のナンプレ 第1弾
-   ========================================= */
+const puzzle = [
+  [5,3,0,0,7,0,0,0,0],
+  [6,0,0,1,9,5,0,0,0],
+  [0,9,8,0,0,0,0,6,0],
+  [8,0,0,0,6,0,0,0,3],
+  [4,0,0,8,0,3,0,0,1],
+  [7,0,0,0,2,0,0,0,6],
+  [0,6,0,0,0,0,2,8,0],
+  [0,0,0,4,1,9,0,0,5],
+  [0,0,0,0,8,0,0,7,9]
+];
 
-/*
-   全レベル共通の正解盤面
-*/
 const solution = [
   [5,3,4,6,7,8,9,1,2],
   [6,7,2,1,9,5,3,4,8],
@@ -357,420 +279,177 @@ const solution = [
   [3,4,5,2,8,6,1,7,9]
 ];
 
-/*
-   0 = 空欄
-   初心者はかなり易しめにしています。
-*/
-const puzzles = {
-
-  beginner: [
-    [5,3,4,6,7,8,9,1,0],
-    [6,7,2,1,9,5,3,0,8],
-    [1,9,8,3,4,2,0,6,7],
-    [8,5,9,7,6,0,4,2,3],
-    [4,2,6,8,5,3,7,9,0],
-    [7,1,3,9,0,4,8,5,6],
-    [9,6,1,5,3,7,2,0,4],
-    [2,8,7,4,1,9,0,3,5],
-    [3,4,5,2,8,0,1,7,9]
-  ],
-
-  easy: [
-    [5,3,0,6,7,0,9,1,2],
-    [6,0,2,1,9,5,3,4,0],
-    [1,9,8,0,4,2,5,6,7],
-    [8,5,9,7,0,1,4,2,3],
-    [4,2,6,8,5,3,0,9,1],
-    [7,1,3,0,2,4,8,5,6],
-    [9,6,1,5,3,7,2,8,0],
-    [2,8,7,4,1,0,6,3,5],
-    [0,4,5,2,8,6,1,7,9]
-  ],
-
-  medium: [
-    [5,3,0,6,7,0,9,0,2],
-    [6,0,2,1,9,5,0,4,0],
-    [1,9,8,0,4,2,5,0,7],
-    [8,0,9,7,0,1,4,2,0],
-    [4,2,0,8,5,3,0,9,1],
-    [7,1,3,0,2,0,8,0,6],
-    [9,0,1,5,0,7,2,8,4],
-    [0,8,7,4,1,9,0,3,5],
-    [3,4,0,2,8,6,1,0,9]
-  ],
-
-  hard: [
-    [0,3,0,6,0,8,9,0,2],
-    [6,0,2,0,9,0,0,4,0],
-    [0,9,8,3,0,2,0,6,0],
-    [8,0,0,7,6,0,4,0,3],
-    [0,2,6,0,5,3,0,9,0],
-    [7,0,3,9,0,0,8,0,6],
-    [9,0,0,5,3,7,0,8,0],
-    [0,8,7,0,1,0,6,0,5],
-    [3,0,5,2,0,6,0,7,9]
-  ]
-};
-
-const levelNames = {
-  beginner: "初心者",
-  easy: "初級",
-  medium: "中級",
-  hard: "上級"
-};
-
-let currentLevel = "beginner";
-let board = [];
+let board = puzzle.map(row => [...row]);
 let selectedCell = null;
-let timerSeconds = 0;
+let seconds = 0;
 let timerInterval = null;
 let gameStarted = false;
-let messageTimer = null;
 
-const sudoku = document.getElementById("sudoku");
-const message = document.getElementById("message");
-const timer = document.getElementById("timer");
-const levelName = document.getElementById("levelName");
-const clearBox = document.getElementById("clearBox");
-const clearTime = document.getElementById("clearTime");
+const boardElement = document.getElementById("board");
+const timerElement = document.getElementById("timer");
+const messageElement = document.getElementById("message");
 
+function createBoard() {
+  boardElement.innerHTML = "";
 
-/* -----------------------------------------
-   ゲーム開始
------------------------------------------ */
-
-function startGame() {
-
-  clearInterval(timerInterval);
-
-  board = puzzles[currentLevel].map(row => [...row]);
-
-  selectedCell = null;
-  timerSeconds = 0;
-  gameStarted = false;
-
-  updateTimer();
-
-  clearBox.classList.remove("show");
-  clearMessage();
-
-  renderBoard();
-}
-
-
-/* -----------------------------------------
-   盤面表示
------------------------------------------ */
-
-function renderBoard() {
-
-  sudoku.innerHTML = "";
-
-  for (let r = 0; r < 9; r++) {
-
-    for (let c = 0; c < 9; c++) {
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
 
       const cell = document.createElement("div");
-
       cell.className = "cell";
-      cell.dataset.row = r;
-      cell.dataset.col = c;
 
-      const value = board[r][c];
+      const value = board[row][col];
 
-      if (value !== 0) {
+      if (puzzle[row][col] !== 0) {
         cell.textContent = value;
+        cell.classList.add("fixed");
+      } else if (value !== 0) {
+        cell.textContent = value;
+        cell.classList.add("correct");
       }
 
-      if (puzzles[currentLevel][r][c] !== 0) {
-        cell.classList.add("fixed");
-      }
+      cell.dataset.row = row;
+      cell.dataset.col = col;
 
       cell.addEventListener("click", () => {
+        if (puzzle[row][col] !== 0) return;
 
-        if (puzzles[currentLevel][r][c] !== 0) {
-          return;
-        }
-
-        selectedCell = { r, c };
-
-        if (!gameStarted) {
-          startTimer();
-        }
-
-        highlightCells();
+        selectedCell = { row, col };
+        highlightCells(row, col);
       });
 
-      sudoku.appendChild(cell);
+      boardElement.appendChild(cell);
     }
   }
 
-  highlightCells();
+  if (selectedCell) {
+    highlightCells(selectedCell.row, selectedCell.col);
+  }
 }
 
-
-/* -----------------------------------------
-   選択セルの強調
------------------------------------------ */
-
-function highlightCells() {
-
+function highlightCells(row, col) {
   const cells = document.querySelectorAll(".cell");
 
   cells.forEach(cell => {
     cell.classList.remove("selected");
-    cell.classList.remove("related");
     cell.classList.remove("same-number");
-  });
 
-  if (!selectedCell) {
-    return;
-  }
+    const r = Number(cell.dataset.row);
+    const c = Number(cell.dataset.col);
 
-  const { r, c } = selectedCell;
-
-  cells.forEach(cell => {
-
-    const cr = Number(cell.dataset.row);
-    const cc = Number(cell.dataset.col);
-
-    if (cr === r && cc === c) {
+    if (r === row && c === col) {
       cell.classList.add("selected");
     }
-
-    if (cr === r || cc === c ||
-        (Math.floor(cr / 3) === Math.floor(r / 3) &&
-         Math.floor(cc / 3) === Math.floor(c / 3))) {
-
-      cell.classList.add("related");
-    }
-
-    if (
-      board[r][c] !== 0 &&
-      board[cr][cc] === board[r][c]
-    ) {
-      cell.classList.add("same-number");
-    }
-
   });
 
-}
+  const value = board[row][col];
 
+  if (value !== 0) {
+    cells.forEach(cell => {
+      const r = Number(cell.dataset.row);
+      const c = Number(cell.dataset.col);
 
-/* -----------------------------------------
-   数字入力
------------------------------------------ */
-
-function enterNumber(number) {
-
-  if (!selectedCell) {
-    showMessage("まず入力したいマスを選んでください。", "error");
-    return;
-  }
-
-  const r = selectedCell.r;
-  const c = selectedCell.c;
-
-  if (puzzles[currentLevel][r][c] !== 0) {
-    return;
-  }
-
-  if (!gameStarted) {
-    startTimer();
-  }
-
-  /* 正解 */
-  if (solution[r][c] === number) {
-
-    board[r][c] = number;
-
-    renderBoard();
-
-    if (checkComplete()) {
-      finishGame();
-    }
-
-  } else {
-
-    const cells = document.querySelectorAll(".cell");
-    const index = r * 9 + c;
-
-    cells[index].classList.add("wrong");
-
-    showMessage("その数字ではありません。", "error");
-
-    setTimeout(() => {
-      cells[index]?.classList.remove("wrong");
-    }, 300);
-
-  }
-
-}
-
-
-/* -----------------------------------------
-   消す
------------------------------------------ */
-
-function eraseNumber() {
-
-  if (!selectedCell) {
-    return;
-  }
-
-  const r = selectedCell.r;
-  const c = selectedCell.c;
-
-  if (puzzles[currentLevel][r][c] !== 0) {
-    return;
-  }
-
-  board[r][c] = 0;
-
-  renderBoard();
-}
-
-
-/* -----------------------------------------
-   完成判定
------------------------------------------ */
-
-function checkComplete() {
-
-  for (let r = 0; r < 9; r++) {
-
-    for (let c = 0; c < 9; c++) {
-
-      if (board[r][c] !== solution[r][c]) {
-        return false;
+      if (board[r][c] === value) {
+        cell.classList.add("same-number");
       }
-
-    }
-
+    });
   }
-
-  return true;
 }
-
-
-/* -----------------------------------------
-   クリア
------------------------------------------ */
-
-function finishGame() {
-
-  clearInterval(timerInterval);
-
-  gameStarted = false;
-
-  clearTime.textContent =
-    "クリアタイム：" + formatTime(timerSeconds);
-
-  clearBox.classList.add("show");
-
-  showMessage(
-    "おめでとうございます！ナンプレ完成です！",
-    "success"
-  );
-}
-
-
-/* -----------------------------------------
-   タイマー
------------------------------------------ */
 
 function startTimer() {
-
-  if (gameStarted) {
-    return;
-  }
+  if (gameStarted) return;
 
   gameStarted = true;
 
   timerInterval = setInterval(() => {
+    seconds++;
 
-    timerSeconds++;
+    const min = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const sec = String(seconds % 60).padStart(2, "0");
 
-    updateTimer();
-
+    timerElement.textContent = `${min}:${sec}`;
   }, 1000);
-
 }
 
-
-function updateTimer() {
-
-  timer.textContent = formatTime(timerSeconds);
-
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
 }
 
+function inputNumber(number) {
 
-function formatTime(seconds) {
+  if (!selectedCell) {
+    messageElement.textContent = "まず、入れたいマスを選んでください。";
+    return;
+  }
 
-  const min = Math.floor(seconds / 60);
-  const sec = seconds % 60;
+  startTimer();
 
-  return String(min).padStart(2, "0") +
-         ":" +
-         String(sec).padStart(2, "0");
+  const { row, col } = selectedCell;
+
+  if (puzzle[row][col] !== 0) return;
+
+  if (number === 0) {
+    board[row][col] = 0;
+  } else {
+    board[row][col] = number;
+  }
+
+  messageElement.textContent = "";
+  createBoard();
 }
 
+function checkAnswer() {
 
-/* -----------------------------------------
-   メッセージ
------------------------------------------ */
+  let empty = false;
+  let wrong = false;
 
-function showMessage(text, type) {
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
 
-  clearTimeout(messageTimer);
+      if (board[row][col] === 0) {
+        empty = true;
+      } else if (board[row][col] !== solution[row][col]) {
+        wrong = true;
+      }
+    }
+  }
 
-  message.textContent = text;
-  message.className = "message " + type;
+  if (wrong) {
+    messageElement.textContent = "まだ間違っているマスがあります。";
+    messageElement.style.color = "#c62828";
+    return;
+  }
 
-  messageTimer = setTimeout(() => {
+  if (empty) {
+    messageElement.textContent = "まだ空いているマスがあります。";
+    messageElement.style.color = "#d97706";
+    return;
+  }
 
-    clearMessage();
+  stopTimer();
 
-  }, 1500);
+  messageElement.textContent =
+    `🎉 クリア！ おめでとうございます！ タイム ${timerElement.textContent}`;
 
+  messageElement.style.color = "#16803c";
 }
 
+function resetGame() {
 
-function clearMessage() {
+  stopTimer();
 
-  message.textContent = "";
-  message.className = "message";
+  board = puzzle.map(row => [...row]);
+  selectedCell = null;
+  seconds = 0;
+  gameStarted = false;
 
+  timerElement.textContent = "00:00";
+  messageElement.textContent = "";
+  messageElement.style.color = "";
+
+  createBoard();
 }
-
-
-/* -----------------------------------------
-   レベル変更
------------------------------------------ */
-
-document.querySelectorAll(".level-btn").forEach(button => {
-
-  button.addEventListener("click", () => {
-
-    document.querySelectorAll(".level-btn")
-      .forEach(btn => btn.classList.remove("active"));
-
-    button.classList.add("active");
-
-    currentLevel = button.dataset.level;
-
-    levelName.textContent = levelNames[currentLevel];
-
-    startGame();
-
-  });
-
-});
-
-
-/* -----------------------------------------
-   数字ボタン
------------------------------------------ */
 
 document.querySelectorAll(".number-btn").forEach(button => {
 
@@ -778,64 +457,16 @@ document.querySelectorAll(".number-btn").forEach(button => {
 
     const number = Number(button.dataset.number);
 
-    enterNumber(number);
-
+    inputNumber(number);
   });
 
 });
 
+document.getElementById("checkBtn").addEventListener("click", checkAnswer);
 
-/* -----------------------------------------
-   消すボタン
------------------------------------------ */
+document.getElementById("resetBtn").addEventListener("click", resetGame);
 
-document.getElementById("eraseBtn")
-  .addEventListener("click", eraseNumber);
-
-
-/* -----------------------------------------
-   リセット
------------------------------------------ */
-
-document.getElementById("resetBtn")
-  .addEventListener("click", () => {
-
-    startGame();
-
-  });
-
-
-/* -----------------------------------------
-   キーボード入力
------------------------------------------ */
-
-document.addEventListener("keydown", event => {
-
-  if (event.key >= "1" && event.key <= "9") {
-
-    enterNumber(Number(event.key));
-
-  }
-
-  if (
-    event.key === "Backspace" ||
-    event.key === "Delete" ||
-    event.key === "0"
-  ) {
-
-    eraseNumber();
-
-  }
-
-});
-
-
-/* -----------------------------------------
-   初期表示
------------------------------------------ */
-
-startGame();
-
+createBoard();
 </script>
 
 </body>
