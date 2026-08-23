@@ -54,12 +54,28 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.difficulty-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#difficulty {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
   font-size: 14px;
 }
 
 .timer {
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .message {
@@ -198,6 +214,15 @@ h1 {
     font-size: 21px;
   }
 
+  .info {
+    align-items: flex-start;
+  }
+
+  .difficulty-area {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .number-btn,
   .control-btn {
     padding: 10px 4px;
@@ -218,8 +243,22 @@ h1 {
   </div>
 
   <div class="info">
-    <div>難易度：かんたん</div>
-    <div class="timer">時間：<span id="timer">00:00</span></div>
+
+    <div class="difficulty-area">
+      <span>レベル：</span>
+
+      <select id="difficulty">
+        <option value="beginner">初心者</option>
+        <option value="easy">初級</option>
+        <option value="medium">中級</option>
+        <option value="hard">上級</option>
+      </select>
+    </div>
+
+    <div class="timer">
+      時間：<span id="timer">00:00</span>
+    </div>
+
   </div>
 
   <div id="message" class="message"></div>
@@ -227,45 +266,54 @@ h1 {
   <div id="board" class="board"></div>
 
   <div class="number-pad">
+
     <button class="number-btn" data-number="1">1</button>
     <button class="number-btn" data-number="2">2</button>
     <button class="number-btn" data-number="3">3</button>
     <button class="number-btn" data-number="4">4</button>
     <button class="number-btn" data-number="5">5</button>
+
     <button class="number-btn" data-number="6">6</button>
     <button class="number-btn" data-number="7">7</button>
     <button class="number-btn" data-number="8">8</button>
     <button class="number-btn" data-number="9">9</button>
     <button class="number-btn" data-number="0">消す</button>
+
   </div>
 
   <div class="controls">
-    <button class="control-btn" id="checkBtn">答え合わせ</button>
-    <button class="control-btn reset" id="resetBtn">最初から</button>
+
+    <button class="control-btn" id="checkBtn">
+      答え合わせ
+    </button>
+
+    <button class="control-btn reset" id="resetBtn">
+      最初から
+    </button>
+
   </div>
 
   <div class="rules">
+
     <strong>遊び方</strong><br>
+
     ① 空いているマスをクリック<br>
+
     ② 下の数字から入れたい数字を選択<br>
+
     ③ 縦・横・3×3のマスに同じ数字が入らないように完成させよう！<br>
+
     ④ 「答え合わせ」でチェックできます。
+
   </div>
 
 </div>
 
 <script>
-const puzzle = [
-  [5,3,0,0,7,0,0,0,0],
-  [6,0,0,1,9,5,0,0,0],
-  [0,9,8,0,0,0,0,6,0],
-  [8,0,0,0,6,0,0,0,3],
-  [4,0,0,8,0,3,0,0,1],
-  [7,0,0,0,2,0,0,0,6],
-  [0,6,0,0,0,0,2,8,0],
-  [0,0,0,4,1,9,0,0,5],
-  [0,0,0,0,8,0,0,7,9]
-];
+
+/* =========================
+   ナンプレの答え
+========================= */
 
 const solution = [
   [5,3,4,6,7,8,9,1,2],
@@ -279,194 +327,540 @@ const solution = [
   [3,4,5,2,8,6,1,7,9]
 ];
 
+
+/* =========================
+   4段階の問題
+========================= */
+
+const puzzles = {
+
+  beginner: [
+    [5,3,0,6,0,0,9,0,2],
+    [0,0,0,1,9,5,3,0,8],
+    [0,0,8,0,0,0,5,0,7],
+    [8,5,0,0,0,1,4,2,0],
+    [0,2,0,0,0,3,0,9,0],
+    [0,1,0,9,2,0,8,0,6],
+    [9,6,0,5,0,0,2,0,4],
+    [2,8,7,4,0,0,0,0,0],
+    [3,4,5,2,0,0,0,7,0]
+  ],
+
+  easy: [
+    [0,3,0,0,7,0,0,1,0],
+    [0,7,2,0,0,5,3,0,0],
+    [0,0,8,3,4,2,5,0,0],
+    [8,0,9,0,0,1,4,2,3],
+    [0,0,0,8,0,0,0,0,0],
+    [0,1,3,0,0,4,0,0,6],
+    [0,6,1,0,0,0,0,8,0],
+    [0,8,7,0,0,0,0,3,5],
+    [3,4,0,0,0,0,1,7,0]
+  ],
+
+  medium: [
+    [5,3,0,0,0,0,0,0,2],
+    [6,7,0,0,0,0,0,4,0],
+    [0,9,0,0,0,0,5,0,0],
+    [0,0,9,7,0,1,4,0,0],
+    [0,0,0,0,5,0,7,0,0],
+    [0,0,3,0,0,4,0,0,0],
+    [0,6,0,0,0,7,2,0,0],
+    [0,0,0,0,1,9,6,3,5],
+    [0,0,5,2,8,0,1,7,0]
+  ],
+
+  hard: [
+    [0,3,4,0,0,0,0,1,2],
+    [0,0,2,0,9,0,0,0,0],
+    [1,9,0,0,0,0,0,0,0],
+    [0,5,0,7,0,0,0,0,3],
+    [0,2,6,0,0,3,0,0,0],
+    [0,1,0,0,0,4,8,5,6],
+    [0,6,0,0,0,0,0,8,0],
+    [0,0,7,4,0,0,0,3,5],
+    [0,0,0,0,0,0,1,0,0]
+  ]
+
+};
+
+
+/* =========================
+   状態
+========================= */
+
+let currentLevel = "beginner";
+
+let puzzle = puzzles[currentLevel].map(row => [...row]);
+
 let board = puzzle.map(row => [...row]);
+
 let selectedCell = null;
+
 let seconds = 0;
+
 let timerInterval = null;
+
 let gameStarted = false;
 
-const boardElement = document.getElementById("board");
-const timerElement = document.getElementById("timer");
-const messageElement = document.getElementById("message");
+let messageTimer = null;
+
+
+/* =========================
+   DOM
+========================= */
+
+const boardElement =
+  document.getElementById("board");
+
+const timerElement =
+  document.getElementById("timer");
+
+const messageElement =
+  document.getElementById("message");
+
+const difficultyElement =
+  document.getElementById("difficulty");
+
+
+/* =========================
+   メッセージ
+========================= */
+
+function showMessage(text, color = "#333", duration = 3000) {
+
+  clearTimeout(messageTimer);
+
+  messageElement.textContent = text;
+
+  messageElement.style.color = color;
+
+  if (duration > 0) {
+
+    messageTimer = setTimeout(() => {
+
+      messageElement.textContent = "";
+
+      messageElement.style.color = "";
+
+    }, duration);
+
+  }
+
+}
+
+
+/* =========================
+   盤面作成
+========================= */
 
 function createBoard() {
+
   boardElement.innerHTML = "";
 
   for (let row = 0; row < 9; row++) {
+
     for (let col = 0; col < 9; col++) {
 
-      const cell = document.createElement("div");
+      const cell =
+        document.createElement("div");
+
       cell.className = "cell";
 
       const value = board[row][col];
 
       if (puzzle[row][col] !== 0) {
+
         cell.textContent = value;
+
         cell.classList.add("fixed");
+
       } else if (value !== 0) {
+
         cell.textContent = value;
+
         cell.classList.add("correct");
+
       }
 
       cell.dataset.row = row;
+
       cell.dataset.col = col;
 
       cell.addEventListener("click", () => {
-        if (puzzle[row][col] !== 0) return;
 
-        selectedCell = { row, col };
+        if (puzzle[row][col] !== 0) {
+          return;
+        }
+
+        selectedCell = {
+          row,
+          col
+        };
+
         highlightCells(row, col);
+
+        startTimer();
+
       });
 
       boardElement.appendChild(cell);
+
     }
+
   }
 
   if (selectedCell) {
-    highlightCells(selectedCell.row, selectedCell.col);
+
+    highlightCells(
+      selectedCell.row,
+      selectedCell.col
+    );
+
   }
+
 }
 
+
+/* =========================
+   選択マス表示
+========================= */
+
 function highlightCells(row, col) {
-  const cells = document.querySelectorAll(".cell");
+
+  const cells =
+    document.querySelectorAll(".cell");
 
   cells.forEach(cell => {
+
     cell.classList.remove("selected");
+
     cell.classList.remove("same-number");
 
-    const r = Number(cell.dataset.row);
-    const c = Number(cell.dataset.col);
-
-    if (r === row && c === col) {
-      cell.classList.add("selected");
-    }
   });
+
+  const selected =
+    document.querySelector(
+      `.cell[data-row="${row}"][data-col="${col}"]`
+    );
+
+  if (selected) {
+
+    selected.classList.add("selected");
+
+  }
 
   const value = board[row][col];
 
   if (value !== 0) {
+
     cells.forEach(cell => {
-      const r = Number(cell.dataset.row);
-      const c = Number(cell.dataset.col);
+
+      const r =
+        Number(cell.dataset.row);
+
+      const c =
+        Number(cell.dataset.col);
 
       if (board[r][c] === value) {
+
         cell.classList.add("same-number");
+
       }
+
     });
+
   }
+
 }
 
+
+/* =========================
+   タイマー
+========================= */
+
 function startTimer() {
-  if (gameStarted) return;
+
+  if (gameStarted) {
+    return;
+  }
 
   gameStarted = true;
 
-  timerInterval = setInterval(() => {
-    seconds++;
+  timerInterval =
+    setInterval(() => {
 
-    const min = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const sec = String(seconds % 60).padStart(2, "0");
+      seconds++;
 
-    timerElement.textContent = `${min}:${sec}`;
-  }, 1000);
+      const min =
+        String(
+          Math.floor(seconds / 60)
+        ).padStart(2, "0");
+
+      const sec =
+        String(
+          seconds % 60
+        ).padStart(2, "0");
+
+      timerElement.textContent =
+        `${min}:${sec}`;
+
+    }, 1000);
+
 }
+
 
 function stopTimer() {
-  clearInterval(timerInterval);
-  timerInterval = null;
+
+  if (timerInterval) {
+
+    clearInterval(timerInterval);
+
+    timerInterval = null;
+
+  }
+
 }
+
+
+/* =========================
+   数字入力
+========================= */
 
 function inputNumber(number) {
 
   if (!selectedCell) {
-    messageElement.textContent = "まず、入れたいマスを選んでください。";
+
+    showMessage(
+      "まず空いているマスを選んでください。",
+      "#666"
+    );
+
+    return;
+
+  }
+
+  const {
+    row,
+    col
+  } = selectedCell;
+
+  if (puzzle[row][col] !== 0) {
     return;
   }
 
   startTimer();
 
-  const { row, col } = selectedCell;
+  board[row][col] = number;
 
-  if (puzzle[row][col] !== 0) return;
-
-  if (number === 0) {
-    board[row][col] = 0;
-  } else {
-    board[row][col] = number;
-  }
-
-  messageElement.textContent = "";
   createBoard();
+
 }
+
+
+/* =========================
+   答え合わせ
+========================= */
 
 function checkAnswer() {
 
-  let empty = false;
-  let wrong = false;
+  startTimer();
+
+  let emptyCount = 0;
+
+  let wrongCount = 0;
+
+  const cells =
+    document.querySelectorAll(".cell");
+
+  cells.forEach(cell => {
+
+    cell.classList.remove("error");
+
+  });
+
 
   for (let row = 0; row < 9; row++) {
+
     for (let col = 0; col < 9; col++) {
 
       if (board[row][col] === 0) {
-        empty = true;
-      } else if (board[row][col] !== solution[row][col]) {
-        wrong = true;
+
+        emptyCount++;
+
+      } else if (
+        board[row][col] !==
+        solution[row][col]
+      ) {
+
+        wrongCount++;
+
+        const cell =
+          document.querySelector(
+            `.cell[data-row="${row}"][data-col="${col}"]`
+          );
+
+        if (cell) {
+
+          cell.classList.add("error");
+
+        }
+
       }
+
     }
+
   }
 
-  if (wrong) {
-    messageElement.textContent = "まだ間違っているマスがあります。";
-    messageElement.style.color = "#c62828";
+
+  if (wrongCount > 0) {
+
+    showMessage(
+      `まだ違うマスがあります。${wrongCount}マス確認してください。`,
+      "#c62828"
+    );
+
     return;
+
   }
 
-  if (empty) {
-    messageElement.textContent = "まだ空いているマスがあります。";
-    messageElement.style.color = "#d97706";
+
+  if (emptyCount > 0) {
+
+    showMessage(
+      `あと${emptyCount}マスです。`,
+      "#666"
+    );
+
     return;
+
   }
+
 
   stopTimer();
 
-  messageElement.textContent =
-    `🎉 クリア！ おめでとうございます！ タイム ${timerElement.textContent}`;
+  showMessage(
+    `🎉 クリア！ おめでとうございます！ タイム ${timerElement.textContent}`,
+    "#16803c",
+    0
+  );
 
-  messageElement.style.color = "#16803c";
 }
 
-function resetGame() {
+
+/* =========================
+   レベル変更
+========================= */
+
+function changeLevel() {
+
+  currentLevel =
+    difficultyElement.value;
+
+  resetGame(false);
+
+  showMessage(
+    `${difficultyElement.options[difficultyElement.selectedIndex].text} の問題です。`,
+    "#555"
+  );
+
+}
+
+
+/* =========================
+   リセット
+========================= */
+
+function resetGame(clearMessage = true) {
 
   stopTimer();
 
-  board = puzzle.map(row => [...row]);
+  board =
+    puzzles[currentLevel]
+      .map(row => [...row]);
+
+  puzzle =
+    puzzles[currentLevel]
+      .map(row => [...row]);
+
   selectedCell = null;
+
   seconds = 0;
+
   gameStarted = false;
 
-  timerElement.textContent = "00:00";
-  messageElement.textContent = "";
-  messageElement.style.color = "";
+  timerElement.textContent =
+    "00:00";
+
+  if (clearMessage) {
+
+    messageElement.textContent = "";
+
+    messageElement.style.color = "";
+
+  }
 
   createBoard();
+
 }
 
-document.querySelectorAll(".number-btn").forEach(button => {
 
-  button.addEventListener("click", () => {
+/* =========================
+   数字ボタン
+========================= */
 
-    const number = Number(button.dataset.number);
+document
+  .querySelectorAll(".number-btn")
+  .forEach(button => {
 
-    inputNumber(number);
+    button.addEventListener(
+      "click",
+      () => {
+
+        const number =
+          Number(button.dataset.number);
+
+        inputNumber(number);
+
+      }
+    );
+
   });
 
-});
 
-document.getElementById("checkBtn").addEventListener("click", checkAnswer);
+/* =========================
+   各種ボタン
+========================= */
 
-document.getElementById("resetBtn").addEventListener("click", resetGame);
+document
+  .getElementById("checkBtn")
+  .addEventListener(
+    "click",
+    checkAnswer
+  );
+
+
+document
+  .getElementById("resetBtn")
+  .addEventListener(
+    "click",
+    () => resetGame()
+  );
+
+
+difficultyElement
+  .addEventListener(
+    "change",
+    changeLevel
+  );
+
+
+/* =========================
+   初期表示
+========================= */
 
 createBoard();
+
 </script>
 
 </body>
