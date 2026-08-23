@@ -1,896 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>今日のナンプレ 第1弾｜ふぉーちゅん</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日のナンプレ 第1弾</title>
 <style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 20px 10px;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
-    Meiryo,
-    sans-serif;
-  background: #f7f7f7;
-  color: #333;
-}
-
-.game-wrap {
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 22px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
-h1 {
-  margin: 0 0 6px;
-  text-align: center;
-  font-size: 25px;
-}
-
-.subtitle {
-  text-align: center;
-  color: #888;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-.top-area {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.level-area {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-#levelSelect {
-  font-size: 15px;
-  padding: 5px 8px;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-  background: white;
-}
-
-.timer {
-  font-weight: bold;
-  font-size: 15px;
-}
-
-.message {
-  min-height: 28px;
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.message.success {
-  color: #16803c;
-}
-
-.message.error {
-  color: #b36b00;
-}
-
-.board {
-  width: min(100%, 450px);
-  aspect-ratio: 1 / 1;
-  margin: 0 auto 18px;
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  border: 2px solid #333;
-}
-
-.cell {
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-right: 1px solid #aaa;
-  border-bottom: 1px solid #aaa;
-  font-size: clamp(20px, 5vw, 28px);
-  font-weight: bold;
-  background: #fff;
-  cursor: pointer;
-  user-select: none;
-}
-
-.cell:nth-child(9n) {
-  border-right: none;
-}
-
-.cell:nth-child(n+73) {
-  border-bottom: none;
-}
-
-.cell:nth-child(3n) {
-  border-right: 2px solid #333;
-}
-
-.cell:nth-child(9n) {
-  border-right: none;
-}
-
-.cell:nth-child(n+19):nth-child(-n+27),
-.cell:nth-child(n+46):nth-child(-n+54) {
-  border-bottom: 2px solid #333;
-}
-
-.cell.fixed {
-  color: #222;
-  background: #f2f2f2;
-  cursor: default;
-}
-
-.cell.user {
-  color: #1769c2;
-  background: #f8fbff;
-}
-
-.cell.selected {
-  background: #e8f2ff;
-}
-
-.number-pad {
-  width: min(100%, 450px);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-}
-
-.number-btn {
-  border: none;
-  border-radius: 7px;
-  background: #eee;
-  padding: 11px 5px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.number-btn:hover {
-  background: #ddd;
-}
-
-.number-btn:active {
-  transform: translateY(1px);
-}
-
-.action-area {
-  width: min(100%, 450px);
-  margin: 12px auto 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.action-btn {
-  border: none;
-  border-radius: 7px;
-  padding: 13px 5px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.check-btn {
-  background: #eee;
-  color: #333;
-}
-
-.reset-btn {
-  background: #333;
-  color: white;
-}
-
-.howto {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #ddd;
-  font-size: 13px;
-  line-height: 1.8;
-  color: #666;
-}
-
-.howto-title {
-  margin-bottom: 4px;
-  font-weight: bold;
-  color: #555;
-}
-
-@media (max-width: 500px) {
-  .game-wrap {
-    padding: 15px;
-  }
-
-  h1 {
-    font-size: 22px;
-  }
-
-  .cell {
-    font-size: 22px;
-  }
-
-  .number-btn {
-    padding: 10px 4px;
-  }
-}
+*{box-sizing:border-box}
+body{margin:0;background:#f6f6f6;color:#222;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{width:min(94vw,430px);margin:18px auto 28px}
+h1{font-size:20px;text-align:center;margin:0 0 12px;font-weight:700}
+.top{display:flex;gap:8px;margin-bottom:10px}
+select,button{font:inherit}
+select{flex:1;padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff}
+.timer{min-width:76px;text-align:center;padding:9px 6px;background:#fff;border:1px solid #bbb;border-radius:8px;font-variant-numeric:tabular-nums}
+.board{display:grid;grid-template-columns:repeat(9,1fr);aspect-ratio:1;background:#222;border:3px solid #222}
+.cell{border:1px solid #aaa;background:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(20px,6vw,29px);font-weight:600;cursor:pointer;user-select:none}
+.cell.fixed{background:#f0f0f0;cursor:default}
+.cell.selected{background:#dcecff}
+.cell.wrong{background:#ffd9d9;color:#c00}
+.cell.br{border-right:3px solid #222}
+.cell.bb{border-bottom:3px solid #222}
+.numbers{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin-top:10px}
+.numbers button{height:42px;border:1px solid #aaa;border-radius:8px;background:#fff;font-size:18px;font-weight:600}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:8px}
+.actions button{height:42px;border:0;border-radius:8px;background:#333;color:#fff;font-weight:600}
+.message{height:24px;text-align:center;margin-top:8px;font-size:14px;font-weight:600}
+@media(max-width:360px){.wrap{width:96vw}.numbers{gap:4px}.actions{gap:5px}.cell{font-size:20px}}
 </style>
 </head>
-
 <body>
-
-<div class="game-wrap">
-
-  <h1>今日のナンプレ 第1弾</h1>
-
-  <div class="subtitle">
-    ふぉーちゅんの5〜10分ミニゲーム
-  </div>
-
-  <div class="top-area">
-
-    <div class="level-area">
-      <span>レベル：</span>
-
-      <select id="levelSelect">
-        <option value="beginner">初心者</option>
-        <option value="easy">初級</option>
-        <option value="medium">中級</option>
-        <option value="hard">上級</option>
-      </select>
-    </div>
-
-    <div class="timer">
-      時間：<span id="timer">00:00</span>
-    </div>
-
-  </div>
-
-  <div id="message" class="message"></div>
-
-  <div id="board" class="board"></div>
-
-  <div class="number-pad">
-
-    <button class="number-btn" data-number="1">1</button>
-    <button class="number-btn" data-number="2">2</button>
-    <button class="number-btn" data-number="3">3</button>
-    <button class="number-btn" data-number="4">4</button>
-    <button class="number-btn" data-number="5">5</button>
-
-    <button class="number-btn" data-number="6">6</button>
-    <button class="number-btn" data-number="7">7</button>
-    <button class="number-btn" data-number="8">8</button>
-    <button class="number-btn" data-number="9">9</button>
-    <button class="number-btn" data-number="0">消す</button>
-
-  </div>
-
-  <div class="action-area">
-
-    <button id="checkBtn" class="action-btn check-btn">
-      答え合わせ
-    </button>
-
-    <button id="resetBtn" class="action-btn reset-btn">
-      最初から
-    </button>
-
-  </div>
-
-  <div class="howto">
-
-    <div class="howto-title">遊び方</div>
-
-    ① 空いているマスをクリック<br>
-    ② 下の数字から入れたい数字を選択<br>
-    ③ 縦・横・3×3のマスに同じ数字が入らないように完成させよう！<br>
-    ④ 「答え合わせ」でチェックできます。
-
-  </div>
-
+<div class="wrap">
+<h1>今日のナンプレ 第1弾</h1>
+<div class="top">
+<select id="level" aria-label="レベル">
+<option value="beginner">初心者</option>
+<option value="easy">初級</option>
+<option value="medium">中級</option>
+<option value="hard">上級</option>
+</select>
+<div class="timer" id="timer">00:00</div>
 </div>
-
-
+<div class="board" id="board"></div>
+<div class="numbers" id="numbers"></div>
+<div class="actions">
+<button id="erase">消す</button>
+<button id="check">答え合わせ</button>
+<button id="reset">最初から</button>
+</div>
+<div class="message" id="message"></div>
+</div>
 <script>
-
-/* =========================
-   基本設定
-========================= */
-
-const LEVELS = {
-
-  beginner: {
-    name: "初心者",
-    blanks: 27
-  },
-
-  easy: {
-    name: "初級",
-    blanks: 38
-  },
-
-  medium: {
-    name: "中級",
-    blanks: 48
-  },
-
-  hard: {
-    name: "上級",
-    blanks: 54
-  }
-
+const PUZZLES = {
+  beginner: "163790540524136000700502006410387925008900460952061380241600800895214000637859200",
+  easy:     "290804700040017932000030000410753620730000084060401357104302800689000073007698000",
+  medium:   "500600000060039000349001726000903001000740089090000247056290013130006000000008000",
+  hard:     "000800037400000020007091086000026700000000610002487000000740005000008000304002060"
 };
 
+const state = { level:"beginner", puzzle:[], solution:[], values:[], selected:-1, seconds:0, timerId:null, started:false };
 
-/* =========================
-   元となる完成済みナンプレ
-========================= */
+function toGrid(s){ return Array.from({length:9},(_,r)=>Array.from({length:9},(_,c)=>+s[r*9+c])); }
+function clone(g){ return g.map(r=>r.slice()); }
 
-const BASE_SOLUTION = [
-  [5,3,4,6,7,8,9,1,2],
-  [6,7,2,1,9,5,3,4,8],
-  [1,9,8,3,4,2,5,6,7],
-
-  [8,5,9,7,6,1,4,2,3],
-  [4,2,6,8,5,3,7,9,1],
-  [7,1,3,9,2,4,8,5,6],
-
-  [9,6,1,5,3,7,2,8,4],
-  [2,8,7,4,1,9,6,3,5],
-  [3,4,5,2,8,6,1,7,9]
-];
-
-
-/* =========================
-   ゲーム状態
-========================= */
-
-let solution = [];
-let puzzle = [];
-let board = [];
-
-let selectedCell = null;
-
-let seconds = 0;
-let timerId = null;
-let gameStarted = false;
-let gameFinished = false;
-
-
-/* =========================
-   盤面コピー
-========================= */
-
-function copyBoard(source) {
-
-  return source.map(row => [...row]);
-
-}
-
-
-/* =========================
-   数字をシャッフル
-========================= */
-
-function shuffle(array) {
-
-  const result = [...array];
-
-  for (let i = result.length - 1; i > 0; i--) {
-
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [result[i], result[j]] =
-      [result[j], result[i]];
-
+function solve(grid){
+  const g=clone(grid), solutions=[];
+  function candidates(r,c){
+    const used=new Set(g[r]);
+    for(let i=0;i<9;i++) used.add(g[i][c]);
+    const br=Math.floor(r/3)*3, bc=Math.floor(c/3)*3;
+    for(let rr=br;rr<br+3;rr++) for(let cc=bc;cc<bc+3;cc++) used.add(g[rr][cc]);
+    const out=[]; for(let n=1;n<=9;n++) if(!used.has(n)) out.push(n);
+    return out;
   }
-
-  return result;
-
-}
-
-
-/* =========================
-   問題を作る
-========================= */
-
-function createPuzzle(blankCount) {
-
-  solution = copyBoard(BASE_SOLUTION);
-
-  /*
-   * 毎回少し違う問題になるよう、
-   * 数字を入れ替える。
-   */
-
-  const numbers = shuffle([
-    1,2,3,4,5,6,7,8,9
-  ]);
-
-  solution = solution.map(row =>
-    row.map(value => numbers[value - 1])
-  );
-
-
-  /*
-   * 行グループを軽くシャッフル
-   */
-
-  const groups = shuffle([0,1,2]);
-
-  const rowOrder = [];
-
-  groups.forEach(group => {
-
-    const rows = shuffle([0,1,2]);
-
-    rows.forEach(row =>
-      rowOrder.push(group * 3 + row)
-    );
-
-  });
-
-  solution = rowOrder.map(index =>
-    [...solution[index]]
-  );
-
-
-  /*
-   * 列も同様にシャッフル
-   */
-
-  const colGroups = shuffle([0,1,2]);
-
-  const colOrder = [];
-
-  colGroups.forEach(group => {
-
-    const cols = shuffle([0,1,2]);
-
-    cols.forEach(col =>
-      colOrder.push(group * 3 + col)
-    );
-
-  });
-
-  solution = solution.map(row =>
-    colOrder.map(index => row[index])
-  );
-
-
-  puzzle = copyBoard(solution);
-
-
-  /*
-   * 指定されたマス数だけ空欄にする
-   */
-
-  const positions = [];
-
-  for (let row = 0; row < 9; row++) {
-
-    for (let col = 0; col < 9; col++) {
-
-      positions.push([row, col]);
-
+  function dfs(){
+    if(solutions.length>1)return;
+    let best=null, opts=null;
+    for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(g[r][c]===0){
+      const o=candidates(r,c); if(!o.length)return;
+      if(!opts||o.length<opts.length){best=[r,c];opts=o;}
     }
-
+    if(!opts){solutions.push(clone(g));return;}
+    for(const n of opts){g[best[0]][best[1]]=n;dfs();g[best[0]][best[1]]=0;if(solutions.length>1)return;}
   }
+  dfs();
+  return solutions[0] || null;
+}
 
-  const shuffledPositions =
-    shuffle(positions);
+function formatTime(sec){return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
+function startTimer(){
+  if(state.started)return;
+  state.started=true;
+  state.timerId=setInterval(()=>{state.seconds++;document.getElementById("timer").textContent=formatTime(state.seconds)},1000);
+}
+function stopTimer(){if(state.timerId){clearInterval(state.timerId);state.timerId=null;}}
+function msg(text){
+  const el=document.getElementById("message"); el.textContent=text;
+  clearTimeout(msg.t); msg.t=setTimeout(()=>el.textContent="",1500);
+}
 
-  for (let i = 0; i < blankCount; i++) {
-
-    const [row, col] =
-      shuffledPositions[i];
-
-    puzzle[row][col] = 0;
-
+function render(){
+  const board=document.getElementById("board"); board.innerHTML="";
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++){
+    const i=r*9+c, el=document.createElement("div");
+    el.className="cell";
+    if(state.puzzle[r][c]) el.classList.add("fixed");
+    if(c===2||c===5||c===8) el.classList.add("br");
+    if(r===2||r===5||r===8) el.classList.add("bb");
+    if(i===state.selected) el.classList.add("selected");
+    const v=state.values[r][c]; el.textContent=v?v:"";
+    el.onclick=()=>{ if(!state.puzzle[r][c]){state.selected=i;render();} };
+    board.appendChild(el);
   }
-
-
-  board = copyBoard(puzzle);
-
 }
-
-
-/* =========================
-   盤面表示
-========================= */
-
-function createBoard() {
-
-  const boardElement =
-    document.getElementById("board");
-
-  boardElement.innerHTML = "";
-
-  for (let row = 0; row < 9; row++) {
-
-    for (let col = 0; col < 9; col++) {
-
-      const cell =
-        document.createElement("div");
-
-      cell.className = "cell";
-
-      const value = board[row][col];
-
-      if (value !== 0) {
-
-        cell.textContent = value;
-        cell.classList.add("fixed");
-
-      } else {
-
-        cell.addEventListener(
-          "click",
-          () => selectCell(row, col)
-        );
-
-      }
-
-      cell.dataset.row = row;
-      cell.dataset.col = col;
-
-      boardElement.appendChild(cell);
-
-    }
-
+function buildButtons(){
+  const n=document.getElementById("numbers"); n.innerHTML="";
+  for(let x=1;x<=9;x++){
+    const b=document.createElement("button"); b.textContent=x;
+    b.onclick=()=>inputNumber(x); n.appendChild(b);
   }
-
-  updateBoardDisplay();
-
 }
-
-
-/* =========================
-   盤面表示更新
-========================= */
-
-function updateBoardDisplay() {
-
-  const cells =
-    document.querySelectorAll(".cell");
-
-  cells.forEach(cell => {
-
-    const row =
-      Number(cell.dataset.row);
-
-    const col =
-      Number(cell.dataset.col);
-
-    cell.classList.remove("selected");
-    cell.classList.remove("user");
-
-    if (puzzle[row][col] === 0) {
-
-      if (board[row][col] !== 0) {
-
-        cell.textContent =
-          board[row][col];
-
-        cell.classList.add("user");
-
-      } else {
-
-        cell.textContent = "";
-
-      }
-
-    }
-
-    if (
-      selectedCell &&
-      selectedCell.row === row &&
-      selectedCell.col === col
-    ) {
-
-      cell.classList.add("selected");
-
-    }
-
-  });
-
+function inputNumber(n){
+  if(state.selected<0)return;
+  const r=Math.floor(state.selected/9),c=state.selected%9;
+  if(state.puzzle[r][c])return;
+  startTimer(); state.values[r][c]=n; render();
 }
-
-
-/* =========================
-   マス選択
-========================= */
-
-function selectCell(row, col) {
-
-  if (gameFinished) return;
-
-  if (puzzle[row][col] !== 0) return;
-
-  selectedCell = { row, col };
-
-  updateBoardDisplay();
-
+function erase(){
+  if(state.selected<0)return;
+  const r=Math.floor(state.selected/9),c=state.selected%9;
+  if(state.puzzle[r][c])return;
+  state.values[r][c]=0; render();
 }
-
-
-/* =========================
-   数字入力
-========================= */
-
-function inputNumber(number) {
-
-  if (gameFinished) return;
-
-  if (!selectedCell) return;
-
-  const row = selectedCell.row;
-  const col = selectedCell.col;
-
-  /*
-   * 最初の一手でタイマー開始
-   */
-
-  if (!gameStarted && number !== 0) {
-
-    startTimer();
-
+function check(){
+  let complete=true, correct=true;
+  document.querySelectorAll(".cell").forEach((el,i)=>el.classList.remove("wrong"));
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++){
+    if(!state.values[r][c]) complete=false;
+    if(state.values[r][c] && state.values[r][c]!==state.solution[r][c]) correct=false;
   }
-
-  board[row][col] = number;
-
-  updateBoardDisplay();
-
-}
-
-
-/* =========================
-   タイマー開始
-========================= */
-
-function startTimer() {
-
-  if (gameStarted) return;
-
-  gameStarted = true;
-
-  timerId = setInterval(() => {
-
-    seconds++;
-
-    updateTimer();
-
-  }, 1000);
-
-}
-
-
-/* =========================
-   タイマー停止
-========================= */
-
-function stopTimer() {
-
-  if (timerId !== null) {
-
-    clearInterval(timerId);
-
-    timerId = null;
-
-  }
-
-}
-
-
-/* =========================
-   タイマー表示
-========================= */
-
-function updateTimer() {
-
-  const minutes =
-    Math.floor(seconds / 60);
-
-  const secs =
-    seconds % 60;
-
-  document.getElementById("timer")
-    .textContent =
-      String(minutes).padStart(2, "0")
-      + ":"
-      + String(secs).padStart(2, "0");
-
-}
-
-
-/* =========================
-   答え合わせ
-========================= */
-
-function checkAnswer() {
-
-  if (gameFinished) return;
-
-  let complete = true;
-
-  for (let row = 0; row < 9; row++) {
-
-    for (let col = 0; col < 9; col++) {
-
-      if (board[row][col] === 0) {
-
-        complete = false;
-        break;
-
-      }
-
-      if (
-        board[row][col] !==
-        solution[row][col]
-      ) {
-
-        complete = false;
-        break;
-
-      }
-
-    }
-
-    if (!complete) break;
-
-  }
-
-
-  const message =
-    document.getElementById("message");
-
-
-  if (complete) {
-
-    stopTimer();
-
-    gameFinished = true;
-
-    message.textContent =
-      "🎉 クリア！おめでとうございます！ タイム "
-      + document.getElementById("timer").textContent;
-
-    message.className =
-      "message success";
-
-  } else {
-
-    message.textContent =
-      "まだ完成していません。もう一度確認してみよう！";
-
-    message.className =
-      "message error";
-
-  }
-
-}
-
-
-/* =========================
-   ゲームリセット
-========================= */
-
-function resetGame() {
-
-  stopTimer();
-
-  seconds = 0;
-  gameStarted = false;
-  gameFinished = false;
-  selectedCell = null;
-
-  updateTimer();
-
-  document.getElementById("message").textContent = "";
-
-  document.getElementById("message")
-    .className = "message";
-
-
-  const level =
-    document.getElementById("levelSelect").value;
-
-  createPuzzle(
-    LEVELS[level].blanks
-  );
-
-  createBoard();
-
-}
-
-
-/* =========================
-   レベル変更
-========================= */
-
-document
-  .getElementById("levelSelect")
-  .addEventListener("change", () => {
-
-    resetGame();
-
-  });
-
-
-/* =========================
-   数字ボタン
-========================= */
-
-document
-  .querySelectorAll(".number-btn")
-  .forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      const number =
-        Number(button.dataset.number);
-
-      inputNumber(number);
-
+  if(complete && correct){
+    stopTimer(); msg("クリア！");
+  }else{
+    document.querySelectorAll(".cell").forEach((el,i)=>{
+      const r=Math.floor(i/9),c=i%9;
+      if(!state.puzzle[r][c] && state.values[r][c] && state.values[r][c]!==state.solution[r][c]) el.classList.add("wrong");
     });
-
-  });
-
-
-/* =========================
-   答え合わせ
-========================= */
-
-document
-  .getElementById("checkBtn")
-  .addEventListener(
-    "click",
-    checkAnswer
-  );
-
-
-/* =========================
-   最初から
-========================= */
-
-document
-  .getElementById("resetBtn")
-  .addEventListener(
-    "click",
-    resetGame
-  );
-
-
-/* =========================
-   最初のゲーム開始
-========================= */
-
-resetGame();
-
+    msg("まだ完成していません");
+  }
+}
+function reset(){
+  stopTimer(); state.seconds=0;state.started=false;state.selected=-1;
+  document.getElementById("timer").textContent="00:00";
+  state.puzzle=toGrid(PUZZLES[state.level]); state.solution=solve(state.puzzle);
+  state.values=clone(state.puzzle); render(); document.getElementById("message").textContent="";
+}
+document.getElementById("level").onchange=e=>{state.level=e.target.value;reset()};
+document.getElementById("erase").onclick=erase;
+document.getElementById("check").onclick=check;
+document.getElementById("reset").onclick=reset;
+buildButtons(); reset();
 </script>
-
 </body>
 </html>
