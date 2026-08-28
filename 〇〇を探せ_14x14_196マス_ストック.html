@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今日の「〇〇を探せ！」14×14・196マス</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",Arial,sans-serif}
+.game{width:96%;max-width:900px;margin:18px auto;text-align:center}
+h1{font-size:24px;margin:0 0 7px}
+.lead{font-size:14px;color:#666;margin-bottom:12px}
+.tabs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.tabs button,select,.reset{border:1px solid #ccc;border-radius:7px;background:#fff;padding:9px 14px;font-size:14px}
+.tabs button{cursor:pointer}.tabs .active{background:#444;color:#fff}
+.timer{margin:10px auto;padding:8px 18px;width:100px;border:1px solid #ccc;border-radius:7px;background:#fff;font-size:20px;font-weight:800}
+.controls{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+select{min-width:300px}.count{padding:9px 12px;font-weight:700}
+.message{min-height:30px;font-weight:700;margin:7px 0}
+.size{font-size:13px;color:#777;margin-bottom:7px}
+.area{position:relative}
+.board-wrap{overflow-x:auto;padding:0 2px}
+.board{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;background:#dcdcdc;padding:6px;border-radius:8px;width:min(100%,820px);margin:auto}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:3px;font-weight:700;font-size:clamp(11px,2.5vw,22px);cursor:pointer;letter-spacing:-1px;user-select:none}
+.cell:hover{background:#f0f0f0}.cell.found{background:#e1f3e1;cursor:default}
+.overlay{display:none;position:absolute;inset:0;align-items:center;justify-content:center;z-index:20;pointer-events:none}
+.overlay.show{display:flex}
+.overlay span{background:rgba(255,255,255,.97);border:3px solid #333;border-radius:12px;padding:18px 30px;font-size:clamp(30px,7vw,58px);font-weight:900;letter-spacing:.08em;box-shadow:0 4px 18px rgba(0,0,0,.2)}
+.reset{background:#444;color:#fff;margin:10px;cursor:pointer}
+.rule{padding:12px;background:#fafafa;border:1px solid #ddd;border-radius:7px;font-size:14px;line-height:1.7}
+.note{font-size:12px;color:#777;margin-top:7px}
+@media(max-width:600px){.board{min-width:650px}.cell{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="game">
+<h1>今日の「〇〇を探せ！」</h1>
+<div class="lead">たくさん並んだ数字の中から、違う数字を見つけよう！</div>
+
+<div class="tabs">
+<button class="active" data-level="easy">初級 30秒</button>
+<button data-level="normal">中級 30秒</button>
+<button data-level="hard">上級 30秒</button>
+</div>
+
+<div class="timer" id="timerTop">00:30</div>
+
+<div class="controls">
+<select id="question"></select>
+<div class="count" id="count"></div>
+</div>
+
+<div class="message" id="message"></div>
+<div class="size">14×14（196マス）</div>
+
+<div class="area">
+<div class="board-wrap"><div class="board" id="board"></div></div>
+<div class="overlay" id="overlay"><span id="overlayText"></span></div>
+</div>
+
+<div class="timer" id="timerBottom">00:30</div>
+<button class="reset" id="reset">↻ 最初から</button>
+
+<div class="rule" id="rule"></div>
+<div class="note">※間違えてクリックしてもペナルティはありません。</div>
+</div>
+
+<script>
+const LEVELS={
+  easy:[
+    {base:"6",target:"5",count:5},
+    {base:"3",target:"9",count:5}
+  ],
+  normal:[
+    {base:"28",target:"29",count:7},
+    {base:"98",target:"93",count:7}
+  ],
+  hard:[
+    {base:"191",target:"181",count:10},
+    {base:"222",target:"223",count:10}
+  ]
+};
+
+let level="easy";
+let questionIndex=0;
+let targets=new Set();
+let found=new Set();
+let timerId=null;
+let endTime=0;
+let startedAt=0;
+let finished=false;
+
+const board=document.getElementById("board");
+const question=document.getElementById("question");
+const count=document.getElementById("count");
+const message=document.getElementById("message");
+const timerTop=document.getElementById("timerTop");
+const timerBottom=document.getElementById("timerBottom");
+const overlay=document.getElementById("overlay");
+const overlayText=document.getElementById("overlayText");
+const rule=document.getElementById("rule");
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function timeText(seconds){
+  return "00:"+String(Math.max(0,Math.ceil(seconds))).padStart(2,"0");
+}
+
+function updateQuestionList(){
+  question.innerHTML="";
+  LEVELS[level].forEach((p,i)=>{
+    const o=document.createElement("option");
+    o.value=i;
+    o.textContent=`第${i+1}問：「${p.base}」の中から「${p.target}」を${p.count}つ`;
+    question.appendChild(o);
+  });
+  question.value=questionIndex;
+}
+
+function startGame(){
+  clearInterval(timerId);
+
+  const p=LEVELS[level][questionIndex];
+  const positions=shuffle(Array.from({length:196},(_,i)=>i));
+
+  targets=new Set(positions.slice(0,p.count));
+  found=new Set();
+  finished=false;
+  overlay.classList.remove("show");
+  overlayText.textContent="";
+
+  board.innerHTML="";
+  count.textContent=`残り ${p.count} 個`;
+  message.textContent=`「${p.base}」の中から「${p.target}」を${p.count}個探そう！`;
+
+  rule.innerHTML=`<strong>ルール</strong><br>14×14の196マスから「${p.target}」を${p.count}つ探してください。制限時間は30秒です。`;
+
+  for(let i=0;i<196;i++){
+    const cell=document.createElement("div");
+    cell.className="cell";
+    cell.textContent=targets.has(i)?p.target:p.base;
+    cell.dataset.index=i;
+    cell.addEventListener("click",()=>selectCell(cell,i,p));
+    board.appendChild(cell);
+  }
+
+  startedAt=Date.now();
+  endTime=startedAt+30000;
+  tick();
+  timerId=setInterval(tick,50);
+}
+
+function tick(){
+  if(finished)return;
+
+  const remain=(endTime-Date.now())/1000;
+  if(remain<=0){
+    timerTop.textContent="00:00";
+    timerBottom.textContent="00:00";
+    finished=true;
+    clearInterval(timerId);
+    overlayText.textContent="タイムオーバー";
+    overlay.classList.add("show");
+    message.textContent="⏰ タイムオーバー！「最初から」で再挑戦しよう。";
+    return;
+  }
+
+  const text=timeText(remain);
+  timerTop.textContent=text;
+  timerBottom.textContent=text;
+}
+
+function selectCell(cell,index,p){
+  if(finished || cell.classList.contains("found"))return;
+
+  if(targets.has(index)){
+    found.add(index);
+    cell.classList.add("found");
+    cell.textContent="✓";
+
+    const remaining=p.count-found.size;
+    count.textContent=`残り ${remaining} 個`;
+
+    if(remaining===0){
+      finished=true;
+      clearInterval(timerId);
+      const elapsed=((Date.now()-startedAt)/1000).toFixed(2);
+      message.textContent=`🎉 ゲームクリア！ ${elapsed}秒で発見！`;
+      overlayText.textContent="ゲームクリア";
+      overlay.classList.add("show");
+    }else{
+      message.textContent=`正解！ あと ${remaining} 個`;
+    }
+  }else{
+    message.textContent="違います。よく見比べて探してみよう！";
+  }
+}
+
+document.querySelectorAll(".tabs button").forEach(button=>{
+  button.addEventListener("click",()=>{
+    document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+    button.classList.add("active");
+    level=button.dataset.level;
+    questionIndex=0;
+    updateQuestionList();
+    startGame();
+  });
+});
+
+question.addEventListener("change",()=>{
+  questionIndex=Number(question.value);
+  startGame();
+});
+
+document.getElementById("reset").addEventListener("click",startGame);
+
+updateQuestionList();
+startGame();
+</script>
+</body>
+</html>
