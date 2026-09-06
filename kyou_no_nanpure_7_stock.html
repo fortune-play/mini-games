@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今日のナンプレ 第7弾</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+.game{max-width:520px;margin:18px auto;padding:14px}
+h1{text-align:center;font-size:23px;margin:0 0 12px}
+.top{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:12px}
+select{padding:8px 10px;border:1px solid #bbb;border-radius:6px;background:#fff;font:inherit}
+.timer{font-variant-numeric:tabular-nums;font-weight:bold;font-size:18px;min-width:58px;text-align:center}
+.board{width:min(92vw,468px);aspect-ratio:1;margin:auto;background:#fff;display:grid;grid-template-columns:repeat(9,1fr);border:3px solid #333}
+.cell{display:flex;align-items:center;justify-content:center;border-right:1px solid #aaa;border-bottom:1px solid #aaa;font-size:clamp(20px,6vw,29px);cursor:pointer;user-select:none}
+.cell:nth-child(3n):not(:nth-child(9n)){border-right:3px solid #333}
+.cell:nth-child(n+19):nth-child(-n+27),.cell:nth-child(n+46):nth-child(-n+54){border-bottom:3px solid #333}
+.cell.fixed{background:#f1f1f1;font-weight:700;cursor:default}
+.cell.selected{background:#e8f3f7}
+.cell.complete{background:#e8f0dc}
+.cell.selected.complete{background:#e8f3f7}
+.cell.wrong{background:#ffe3e3;color:#c62828}
+
+/* 第7弾も第6弾までの「完成時キラッと光る」演出を継承 */
+.cell.sparkle{
+  animation:sparkle .75s ease-out;
+  position:relative;
+}
+@keyframes sparkle{
+  0%{background:#fff;transform:scale(1)}
+  20%{background:#fff4a8;transform:scale(1.08)}
+  45%{background:#fffbd0;transform:scale(1.03)}
+  70%{background:#eaf4dc;transform:scale(1.01)}
+  100%{background:#e8f0dc;transform:scale(1)}
+}
+.cell.sparkle::after{
+  content:"✦";
+  position:absolute;
+  font-size:.65em;
+  color:#e0b400;
+  opacity:0;
+  pointer-events:none;
+  animation:star .75s ease-out;
+}
+@keyframes star{
+  0%{opacity:0;transform:scale(.4) rotate(0deg)}
+  25%{opacity:1;transform:scale(1.35) rotate(30deg)}
+  100%{opacity:0;transform:scale(1.9) rotate(90deg)}
+}
+
+.numbers{display:grid;grid-template-columns:repeat(9,1fr);gap:7px;margin:14px auto 10px;width:min(92vw,468px)}
+.numbers button,.actions button{font:inherit;border-radius:7px;cursor:pointer}
+.numbers button{border:1px solid #bbb;background:#fff;padding:10px 0}
+.actions{display:flex;gap:8px;justify-content:center}
+.actions button{border:0;padding:10px 15px;background:#555;color:#fff}
+.actions button:first-child{background:#4a7c59}
+.message{text-align:center;min-height:24px;margin-top:10px;font-weight:600}
+@media(max-width:420px){.numbers{gap:5px}.numbers button{padding:9px 0}}
+</style>
+</head>
+<body>
+<main class="game">
+<h1>今日のナンプレ 第7弾</h1>
+
+<div class="top">
+<select id="level">
+<option value="beginner">初心者</option>
+<option value="easy">初級</option>
+<option value="medium">中級</option>
+<option value="hard">上級</option>
+</select>
+<div class="timer" id="timer">00:00</div>
+</div>
+
+<div class="board" id="board"></div>
+<div class="numbers" id="numbers"></div>
+
+<div class="actions">
+<button id="clear">消す</button>
+<button id="check">答え合わせ</button>
+<button id="reset">最初から</button>
+</div>
+<div class="message" id="message"></div>
+</main>
+
+<script>
+const puzzles={
+beginner:[
+[8,0,6,7,4,3,2,1,0],
+[1,0,5,0,0,0,0,7,0],
+[7,4,3,0,2,5,9,0,0],
+[3,1,2,5,8,9,0,6,0],
+[0,7,4,0,0,2,0,5,9],
+[0,8,0,6,0,4,0,0,0],
+[9,6,7,0,3,1,0,0,8],
+[2,0,0,0,6,0,3,0,1],
+[0,3,0,2,5,8,6,0,0]
+],
+easy:[
+[0,9,6,0,0,3,0,1,0],
+[1,2,0,8,9,0,0,0,3],
+[0,0,0,1,0,0,0,0,6],
+[3,1,0,0,0,9,0,0,0],
+[0,7,0,3,1,2,0,0,9],
+[5,0,9,6,0,0,1,0,2],
+[9,6,0,0,0,1,5,2,0],
+[0,5,0,9,6,7,0,0,1],
+[4,3,0,0,0,8,6,9,0]
+],
+medium:[
+[0,0,0,0,4,3,0,1,5],
+[1,0,5,0,0,0,0,0,3],
+[0,0,3,0,0,0,9,8,0],
+[3,1,0,0,0,0,0,0,4],
+[6,0,4,3,0,0,0,0,0],
+[5,8,0,0,7,0,1,0,2],
+[9,0,0,4,3,0,5,0,0],
+[2,0,8,0,0,7,0,0,1],
+[0,0,0,2,5,8,0,0,7]
+],
+hard:[
+[0,9,0,7,4,3,0,0,5],
+[0,0,0,8,0,0,0,7,0],
+[0,0,0,1,2,0,0,0,6],
+[3,0,0,0,0,0,0,0,0],
+[0,0,0,0,1,0,8,5,9],
+[0,0,9,0,7,0,0,0,2],
+[0,0,0,0,0,1,0,2,0],
+[0,0,0,9,6,0,3,0,0],
+[0,0,1,2,0,8,6,0,0]
+]
+};
+
+const solution=[
+[8,9,6,7,4,3,2,1,5],
+[1,2,5,8,9,6,4,7,3],
+[7,4,3,1,2,5,9,8,6],
+[3,1,2,5,8,9,7,6,4],
+[6,7,4,3,1,2,8,5,9],
+[5,8,9,6,7,4,1,3,2],
+[9,6,7,4,3,1,5,2,8],
+[2,5,8,9,6,7,3,4,1],
+[4,3,1,2,5,8,6,9,7]
+];
+
+let level="beginner",board=[],selected=-1,started=false,seconds=0,interval=null;
+let completedState={rows:new Set(),cols:new Set(),blocks:new Set()};
+
+const $=id=>document.getElementById(id);
+
+function render(){
+board=puzzles[level].map(r=>r.slice());
+selected=-1;
+started=false;
+seconds=0;
+clearInterval(interval);
+interval=null;
+completedState={rows:new Set(),cols:new Set(),blocks:new Set()};
+$("timer").textContent="00:00";
+$("message").textContent="";
+
+const el=$("board");
+el.innerHTML="";
+board.flat().forEach((v,i)=>{
+const c=document.createElement("div");
+c.className="cell"+(v?" fixed":"");
+c.textContent=v||"";
+c.dataset.i=i;
+c.onclick=()=>selectCell(i);
+el.appendChild(c);
+});
+updateCompleted(false);
+}
+
+function selectCell(i){
+if(puzzles[level].flat()[i])return;
+selected=i;
+document.querySelectorAll(".cell").forEach(c=>c.classList.remove("selected"));
+document.querySelector(`[data-i="${i}"]`).classList.add("selected");
+}
+
+function input(n){
+if(selected<0||puzzles[level].flat()[selected])return;
+
+if(!started){
+started=true;
+interval=setInterval(()=>{
+seconds++;
+$("timer").textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0");
+},1000);
+}
+
+board[Math.floor(selected/9)][selected%9]=n;
+const c=document.querySelector(`[data-i="${selected}"]`);
+c.textContent=n;
+c.classList.remove("wrong");
+$("message").textContent="";
+updateCompleted(true);
+}
+
+function clearCell(){
+if(selected<0||puzzles[level].flat()[selected])return;
+board[Math.floor(selected/9)][selected%9]=0;
+const c=document.querySelector(`[data-i="${selected}"]`);
+c.textContent="";
+c.classList.remove("wrong");
+$("message").textContent="";
+updateCompleted(false);
+}
+
+function isCorrectGroup(values){
+const sorted=values.slice().sort((a,b)=>a-b);
+return sorted.length===9 && sorted.every((v,i)=>v===i+1);
+}
+
+function getCompleted(){
+const rows=new Set(),cols=new Set(),blocks=new Set();
+
+for(let r=0;r<9;r++){
+if(isCorrectGroup(board[r]))rows.add(r);
+}
+for(let c=0;c<9;c++){
+const values=[];
+for(let r=0;r<9;r++)values.push(board[r][c]);
+if(isCorrectGroup(values))cols.add(c);
+}
+for(let br=0;br<3;br++){
+for(let bc=0;bc<3;bc++){
+const values=[];
+for(let r=br*3;r<br*3+3;r++){
+for(let c=bc*3;c<bc*3+3;c++)values.push(board[r][c]);
+}
+if(isCorrectGroup(values))blocks.add(br*3+bc);
+}
+}
+return {rows,cols,blocks};
+}
+
+function updateCompleted(animate){
+const cells=document.querySelectorAll(".cell");
+cells.forEach(c=>c.classList.remove("complete"));
+
+const now=getCompleted();
+
+for(const r of now.rows){
+for(let c=0;c<9;c++)cells[r*9+c].classList.add("complete");
+}
+for(const c of now.cols){
+for(let r=0;r<9;r++)cells[r*9+c].classList.add("complete");
+}
+for(const b of now.blocks){
+const br=Math.floor(b/3)*3,bc=(b%3)*3;
+for(let r=br;r<br+3;r++){
+for(let c=bc;c<bc+3;c++)cells[r*9+c].classList.add("complete");
+}
+}
+
+if(animate){
+for(const r of now.rows){
+if(!completedState.rows.has(r))sparkleRow(r);
+}
+for(const c of now.cols){
+if(!completedState.cols.has(c))sparkleCol(c);
+}
+for(const b of now.blocks){
+if(!completedState.blocks.has(b))sparkleBlock(b);
+}
+}
+
+completedState=now;
+}
+
+function sparkleCells(indices){
+const cells=document.querySelectorAll(".cell");
+indices.forEach(i=>{
+const el=cells[i];
+el.classList.remove("sparkle");
+void el.offsetWidth;
+el.classList.add("sparkle");
+setTimeout(()=>el.classList.remove("sparkle"),800);
+});
+}
+
+function sparkleRow(r){
+sparkleCells(Array.from({length:9},(_,c)=>r*9+c));
+}
+function sparkleCol(c){
+sparkleCells(Array.from({length:9},(_,r)=>r*9+c));
+}
+function sparkleBlock(b){
+const br=Math.floor(b/3)*3,bc=(b%3)*3;
+const indices=[];
+for(let r=br;r<br+3;r++){
+for(let c=bc;c<bc+3;c++)indices.push(r*9+c);
+}
+sparkleCells(indices);
+}
+
+function check(){
+let ok=true,complete=true;
+document.querySelectorAll(".cell").forEach(c=>c.classList.remove("wrong"));
+
+board.flat().forEach((v,i)=>{
+if(v===0)complete=false;
+else if(v!==solution[Math.floor(i/9)][i%9]){
+ok=false;
+document.querySelector(`[data-i="${i}"]`).classList.add("wrong");
+}
+});
+
+if(complete&&ok){
+clearInterval(interval);
+$("message").textContent="クリア！";
+}else{
+$("message").textContent="まだ完成していません";
+}
+}
+
+for(let n=1;n<=9;n++){
+const b=document.createElement("button");
+b.textContent=n;
+b.onclick=()=>input(n);
+$("numbers").appendChild(b);
+}
+
+$("clear").onclick=clearCell;
+$("check").onclick=check;
+$("reset").onclick=render;
+
+$("level").onchange=e=>{
+level=e.target.value;
+render();
+};
+
+render();
+</script>
+</body>
+</html>
