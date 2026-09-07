@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今日の「〇〇を探せ！」13×13試作</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;color:#333;font-family:Arial,"Noto Sans JP",sans-serif}
+.game{width:96%;max-width:850px;margin:18px auto;text-align:center}
+h1{font-size:24px;margin:0 0 8px}.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.tabs button,select,.reset{padding:9px 14px;border:1px solid #ccc;border-radius:7px;background:#fff}
+.tabs .active{background:#444;color:#fff}.timer{margin:10px auto;padding:9px 20px;width:92px;border:1px solid #ccc;border-radius:7px;background:#fff;font-size:20px;font-weight:bold}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.count{padding:10px}.message{min-height:30px;font-weight:bold}
+.size{font-size:13px;color:#777}.area{position:relative}.board-wrap{overflow-x:auto}
+.board{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;background:#ddd;padding:6px;border-radius:8px;width:min(100%,760px);margin:auto}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:3px;font-weight:bold;font-size:clamp(12px,2.8vw,24px);cursor:pointer;letter-spacing:-1px;user-select:none}
+.cell:hover{background:#f0f0f0}.cell.found{background:#e0f3e0;cursor:default}
+.overlay{display:none;position:absolute;inset:0;align-items:center;justify-content:center;z-index:20;pointer-events:none}
+.overlay.show{display:flex}.overlay span{background:#fff;border:3px solid #333;border-radius:12px;padding:18px 30px;font-size:clamp(28px,7vw,55px);font-weight:900}
+.reset{background:#444;color:#fff;margin:10px}.rule{padding:12px;background:#fafafa;border:1px solid #ddd;border-radius:7px;font-size:14px}
+@media(max-width:600px){.board{min-width:600px}.cell{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="game">
+<h1>今日の「〇〇を探せ！」</h1>
+<div class="tabs">
+<button class="active" data-l="e">初級 30秒</button>
+<button data-l="m">中級 30秒</button>
+<button data-l="h">上級 30秒</button>
+</div>
+<div class="timer" id="tt">00:30</div>
+<div class="controls"><select id="q"></select><div class="count" id="count"></div></div>
+<div class="message" id="msg"></div><div class="size">13×13（169マス）</div>
+<div class="area"><div class="board" id="board"></div><div class="overlay" id="over"><span>タイムオーバー</span></div></div>
+<div class="timer" id="tb">00:30</div>
+<button class="reset" id="reset">↻ 最初から</button>
+<div class="rule" id="rule"></div>
+</div>
+<script>
+const L={
+e:[["氷","水",5]],
+m:[["玉","王",7]],
+h:[["巳","己",10]]
+};
+let lev="e",qi=0,set=new Set(),found=new Set(),end=0,tid,done=false;
+const b=document.getElementById("board"),q=document.getElementById("q"),c=document.getElementById("count"),msg=document.getElementById("msg"),tt=document.getElementById("tt"),tb=document.getElementById("tb"),over=document.getElementById("over"),rule=document.getElementById("rule");
+function sh(a){for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fmt(n){return "00:"+String(Math.max(0,Math.ceil(n))).padStart(2,"0")}
+function load(){q.innerHTML="";L[lev].forEach((x,i)=>{let o=document.createElement("option");o.value=i;o.textContent=`第${i+1}問：「${x[0]}」の中から「${x[1]}」を${x[2]}つ`;q.appendChild(o)});q.value=qi}
+function adj(a,b){let ar=Math.floor(a/13),ac=a%13,br=Math.floor(b/13),bc=b%13;return Math.abs(ar-br)+Math.abs(ac-bc)===1}
+function pickEasyTargets(){
+ let row=Math.floor(Math.random()*13),col=Math.floor(Math.random()*12);
+ let a=row*13+col,b=a+1,chosen=[a,b];
+ let candidates=sh(Array.from({length:169},(_,i)=>i).filter(i=>i!==a&&i!==b&&!adj(i,a)&&!adj(i,b)));
+ for(let i of candidates){
+  if(chosen.every(j=>!adj(i,j))){chosen.push(i);if(chosen.length===5)break}
+ }
+ return new Set(chosen);
+}
+function start(){
+ clearInterval(tid);let x=L[lev][qi];set=(lev==="e"&&x[2]===5)?pickEasyTargets():new Set(sh(Array.from({length:169},(_,i)=>i)).slice(0,x[2]));found=new Set();done=false;over.classList.remove("show");b.innerHTML="";
+ c.textContent=`残り ${x[2]} 個`;msg.textContent=`「${x[0]}」の中から「${x[1]}」を${x[2]}個探そう！`;
+ rule.innerHTML=`<b>ルール</b><br>13×13の169マスから「${x[1]}」を${x[2]}つ探してください。制限時間は30秒。`;
+ for(let i=0;i<169;i++){let z=document.createElement("div");z.className="cell";z.textContent=set.has(i)?x[1]:x[0];z.onclick=()=>hit(z,i,x);b.appendChild(z)}
+ end=Date.now()+30000;tick();tid=setInterval(tick,50)
+}
+function tick(){if(done)return;let r=(end-Date.now())/1000;if(r<=0){tt.textContent=tb.textContent="00:00";done=true;clearInterval(tid);over.classList.add("show");msg.textContent="⏰ タイムオーバー！「最初から」で再挑戦しよう。";return}tt.textContent=tb.textContent=fmt(r)}
+function hit(z,i,x){if(done||z.classList.contains("found"))return;if(set.has(i)){found.add(i);z.classList.add("found");z.textContent="✓";let n=x[2]-found.size;c.textContent=`残り ${n} 個`;if(!n){done=true;clearInterval(tid);msg.textContent="🎉 クリア！"}}else msg.textContent="違います。よく見比べて探してみよう！"}
+document.querySelectorAll(".tabs button").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));t.classList.add("active");lev=t.dataset.l;qi=0;load();start()});
+q.onchange=()=>{qi=+q.value;start()};document.getElementById("reset").onclick=start;load();start();
+</script>
+</div>
+</body>
+</html>
