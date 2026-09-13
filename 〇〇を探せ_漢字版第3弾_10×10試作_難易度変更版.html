@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>〇〇を探せ！漢字バージョン第3弾</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#f7f7f7;
+  color:#333;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
+}
+.game{
+  max-width:760px;
+  margin:0 auto;
+  padding:18px 12px 28px;
+}
+h1{
+  text-align:center;
+  font-size:24px;
+  margin:0 0 10px;
+}
+.lead{
+  text-align:center;
+  margin-bottom:14px;
+}
+.tabs{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin:12px auto;
+}
+.tabs button{
+  padding:9px 13px;
+  border:1px solid #bbb;
+  border-radius:7px;
+  background:#fff;
+  cursor:pointer;
+  font:inherit;
+}
+.tabs button.active{
+  background:#555;
+  color:#fff;
+}
+.timer{
+  text-align:center;
+  font-size:24px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  margin:10px 0;
+}
+.controls{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin:8px 0;
+}
+.controls select{
+  padding:8px 10px;
+  border:1px solid #bbb;
+  border-radius:6px;
+  background:#fff;
+  font:inherit;
+}
+.count{
+  min-width:78px;
+  text-align:center;
+  font-weight:700;
+}
+.message{
+  min-height:26px;
+  text-align:center;
+  margin:8px 0;
+  font-weight:600;
+}
+.size{
+  text-align:center;
+  color:#666;
+  font-size:14px;
+  margin-bottom:8px;
+}
+.area{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid #ccc;
+  border-radius:7px;
+  padding:10px;
+}
+.board-wrap{
+  width:100%;
+  overflow:auto;
+}
+.board{
+  display:grid;
+  grid-template-columns:repeat(10,46px);
+  width:max-content;
+  margin:0 auto;
+  border-top:1px solid #ccc;
+  border-left:1px solid #ccc;
+}
+.cell{
+  width:46px;
+  height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-right:1px solid #ddd;
+  border-bottom:1px solid #ddd;
+  font-size:20px;
+  font-weight:500;
+  cursor:pointer;
+  user-select:none;
+  background:#fff;
+}
+.cell:hover{
+  background:#f0f0f0;
+}
+.cell.found{
+  background:#e6f1dc;
+  color:#4f6d3a;
+  font-weight:700;
+}
+.overlay{
+  display:none;
+  position:absolute;
+  inset:0;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.86);
+  z-index:3;
+}
+.overlay.show{
+  display:flex;
+}
+.overlay span{
+  padding:14px 22px;
+  border-radius:8px;
+  background:#555;
+  color:#fff;
+  font-weight:700;
+  font-size:20px;
+}
+.timer.bottom{
+  margin:12px 0 8px;
+}
+.reset{
+  display:block;
+  margin:0 auto 14px;
+  padding:10px 22px;
+  border:0;
+  border-radius:7px;
+  background:#555;
+  color:#fff;
+  font:inherit;
+  cursor:pointer;
+}
+.rule{
+  background:#fafafa;
+  border:1px solid #ddd;
+  border-radius:7px;
+  padding:12px 14px;
+  font-size:14px;
+  line-height:1.7;
+}
+.note{
+  text-align:center;
+  color:#777;
+  font-size:12px;
+  margin-top:8px;
+}
+@media(max-width:600px){
+  .game{padding-left:8px;padding-right:8px}
+  .board{grid-template-columns:repeat(10,42px)}
+  .cell{width:42px;height:42px;font-size:18px}
+  .tabs{gap:5px}
+  .tabs button{padding:8px 9px;font-size:14px}
+}
+</style>
+</head>
+<body>
+<div class="game">
+<h1>今日の「〇〇を探せ！」</h1>
+<div class="lead">たくさん並んだ漢字の中から、違う漢字を見つけよう！</div>
+
+<div class="tabs">
+  <button class="active" data-level="easy">初級 30秒</button>
+  <button data-level="normal">中級 30秒</button>
+  <button data-level="hard">上級 30秒</button>
+</div>
+
+<div class="timer" id="timerTop">00:30</div>
+
+<div class="controls">
+  <select id="question"></select>
+  <div class="count" id="count"></div>
+</div>
+
+<div class="message" id="message"></div>
+<div class="size">10×10（100マス）</div>
+
+<div class="area">
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+  <div class="overlay" id="timeout"><span>タイムオーバー</span></div>
+</div>
+
+<div class="timer bottom" id="timerBottom">00:30</div>
+<button class="reset" id="reset">↻ 最初から</button>
+
+<div class="rule" id="rule"></div>
+<div class="note">※間違えてクリックしてもペナルティはありません。</div>
+</div>
+
+<script>
+/*
+  〇〇を探せ！漢字バージョン第3弾
+
+  初級：菅の中から管を3個探す
+  中級：微の中から徴を5個探す
+  上級：人口の中から入口を7個探す
+
+  10×10＝100マス、制限時間30秒。
+*/
+const LEVELS={
+  easy:[
+    {base:"菅",target:"管",count:3}
+  ],
+  normal:[
+    {base:"微",target:"徴",count:5}
+  ],
+  hard:[
+    {base:"人口",target:"入口",count:7}
+  ]
+};
+
+let level="easy";
+let questionIndex=0;
+let targets=new Set();
+let found=new Set();
+let timerId=null;
+let endTime=0;
+let finished=false;
+
+const board=document.getElementById("board");
+const question=document.getElementById("question");
+const count=document.getElementById("count");
+const message=document.getElementById("message");
+const timerTop=document.getElementById("timerTop");
+const timerBottom=document.getElementById("timerBottom");
+const timeout=document.getElementById("timeout");
+const rule=document.getElementById("rule");
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function timeText(seconds){
+  return "00:"+String(Math.max(0,Math.ceil(seconds))).padStart(2,"0");
+}
+
+function loadQuestions(){
+  question.innerHTML="";
+  LEVELS[level].forEach((x,i)=>{
+    const o=document.createElement("option");
+    o.value=i;
+    o.textContent=`第${i+1}問`;
+    question.appendChild(o);
+  });
+  question.value=questionIndex;
+}
+
+function start(){
+  clearInterval(timerId);
+  found=new Set();
+  targets=new Set();
+  finished=false;
+  message.textContent="";
+  timeout.classList.remove("show");
+  timerTop.textContent="00:30";
+  timerBottom.textContent="00:30";
+
+  const x=LEVELS[level][questionIndex];
+
+  const positions=shuffle(Array.from({length:100},(_,i)=>i));
+  targets=new Set(positions.slice(0,x.count));
+
+  board.innerHTML="";
+  for(let i=0;i<100;i++){
+    const z=document.createElement("div");
+    z.className="cell";
+    z.textContent=targets.has(i)?x.target:x.base;
+    z.onclick=()=>hit(z,i,x);
+    board.appendChild(z);
+  }
+
+  count.textContent=`残り ${x.count} 個`;
+  rule.innerHTML=`<b>ルール</b><br>10×10の100マスから「${x.target}」を${x.count}つ探してください。制限時間は30秒。`;
+
+  endTime=Date.now()+30000;
+  tick();
+  timerId=setInterval(tick,50);
+}
+
+function tick(){
+  if(finished)return;
+  const r=(endTime-Date.now())/1000;
+  if(r<=0){
+    timerTop.textContent="00:00";
+    timerBottom.textContent="00:00";
+    finished=true;
+    clearInterval(timerId);
+    timeout.classList.add("show");
+    message.textContent="⏰ タイムオーバー！「最初から」で再挑戦しよう。";
+    return;
+  }
+  const t=timeText(r);
+  timerTop.textContent=t;
+  timerBottom.textContent=t;
+}
+
+function hit(z,i,x){
+  if(finished || z.classList.contains("found"))return;
+
+  if(targets.has(i)){
+    found.add(i);
+    z.classList.add("found");
+    z.textContent="✓";
+
+    const remaining=x.count-found.size;
+    count.textContent=`残り ${remaining} 個`;
+
+    if(remaining===0){
+      finished=true;
+      clearInterval(timerId);
+      message.textContent="🎉 クリア！";
+    }
+  }else{
+    message.textContent="違います。よく見比べて探してみよう！";
+  }
+}
+
+document.querySelectorAll(".tabs button").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    level=t.dataset.level;
+    questionIndex=0;
+    loadQuestions();
+    start();
+  };
+});
+
+question.onchange=()=>{
+  questionIndex=Number(question.value);
+  start();
+};
+
+document.getElementById("reset").onclick=start;
+
+loadQuestions();
+start();
+</script>
+</div>
+</body>
+</html>
